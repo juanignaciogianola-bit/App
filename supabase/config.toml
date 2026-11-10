@@ -427,3 +427,6 @@ enabled = true
 
 [functions.analyze-meal]
 verify_jwt = true
+
+[functions.analyze-physique]
+verify_jwt = true

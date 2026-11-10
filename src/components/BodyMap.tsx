@@ -84,15 +84,20 @@ interface Props {
   selected?: MuscleId | null;
   onPressMuscle?: (m: MuscleId) => void;
   height?: number;
+  /** Fixed colours per muscle (e.g. lagging muscles); overrides the volume scale. */
+  highlight?: Partial<Record<MuscleId, string>>;
 }
 
-export function BodyMap({ side, volume, experience, selected, onPressMuscle, height = 320 }: Props) {
+export function BodyMap({ side, volume, experience, selected, onPressMuscle, height = 320, highlight }: Props) {
   const shapes = side === 'front' ? FRONT : BACK;
   const fills = useMemo(() => {
     const out: Partial<Record<MuscleId, string>> = {};
-    for (const s of shapes) out[s.muscle] = STATUS_COLORS[volumeStatus(volume[s.muscle] ?? 0, experience)];
+    for (const s of shapes)
+      out[s.muscle] = highlight
+        ? highlight[s.muscle] ?? STATUS_COLORS.none
+        : STATUS_COLORS[volumeStatus(volume[s.muscle] ?? 0, experience)];
     return out;
-  }, [shapes, volume, experience]);
+  }, [shapes, volume, experience, highlight]);
 
   return (
     <View style={{ height, aspectRatio: 200 / 400 }}>

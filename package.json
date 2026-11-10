@@ -10,11 +10,11 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:db": "bash supabase/tests/run.sh",
-    "e2e": "node e2e/stage1-onboarding.web.js && node e2e/stage2-tracker.web.js && node e2e/stage3-meals.web.js",
+    "e2e": "node e2e/stage1-onboarding.web.js && node e2e/stage2-tracker.web.js && node e2e/stage3-meals.web.js && node e2e/stage4-physique.web.js",
     "test:db:local": "SUPABASE_DB_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres bash supabase/tests/run.sh",
     "supabase": "supabase",
     "typecheck:functions": "cd supabase/functions && npx -y deno@2 check --node-modules-dir=none */index.ts",
-    "test:functions": "node e2e/functions.analyze-meal.test.js",
+    "test:functions": "node e2e/functions.analyze-meal.test.js && node e2e/functions.analyze-physique.test.js",
     "mock:anthropic": "node e2e/mocks/anthropic-mock.js"
   },
   "jest": {

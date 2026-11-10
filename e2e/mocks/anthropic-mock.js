@@ -52,4 +52,29 @@ register((body, s) => {
   };
 });
 
+// Physique analysis. A tiny third photo (< 2 KB) simulates an unusable photo set.
+register((body, s) => {
+  if (!String(s.system).includes('physique coach')) return null;
+  if (s.images.length !== 3) throw new Error('expected 3 photos');
+  if (s.images[2].bytes < 2000) {
+    return { can_analyze: false, reason_if_not: 'La foto de perfil no muestra el físico con claridad.', summary: '', strengths: [], lagging: [], imbalances: [], routine_suggestions: [], diet_suggestions: [] };
+  }
+  return {
+    can_analyze: true, reason_if_not: '',
+    summary: 'Tren superior bien desarrollado; gemelos y deltoides laterales van por detrás. Prioridad: sumar volumen de gemelos.',
+    strengths: [{ muscle_id: 'chest', note: 'Pecho con buen volumen' }, { muscle_id: 'lats', note: 'Dorsales anchos' }],
+    lagging: [
+      { muscle_id: 'calves', severity: 'marked', note: 'Gemelos chicos y 0 series semanales' },
+      { muscle_id: 'side_delts', severity: 'moderate', note: 'Hombros estrechos respecto de la espalda' },
+    ],
+    imbalances: [{ note: 'Tren superior más desarrollado que el inferior', muscles: ['quads', 'calves'] }],
+    routine_suggestions: [
+      { muscle_id: 'calves', exercise_slug: 'standing_calf_raise', sets: 4, rep_min: 10, rep_max: 15, reason: 'Hoy no entrenás gemelos' },
+      { muscle_id: 'calves', exercise_slug: 'seated_calf_raise', sets: 3, rep_min: 12, rep_max: 20, reason: 'Sóleo' },
+      { muscle_id: 'side_delts', exercise_slug: 'cable_lateral_raise', sets: 3, rep_min: 12, rep_max: 20, reason: 'Más tensión en el rango corto' },
+    ],
+    diet_suggestions: [{ title: 'Proteína', detail: 'Llegá a 160 g por día repartidos en 4 comidas.' }, { title: 'Superávit leve', detail: 'Mantené +250 kcal sobre mantenimiento.' }],
+  };
+});
+
 module.exports = { register };

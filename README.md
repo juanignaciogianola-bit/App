@@ -7,7 +7,7 @@ App de fitness (Expo + Supabase + Claude): tracker de entrenamiento, calorías c
 - [x] Etapa 1: auth + onboarding + objetivos de calorías y macros
 - [x] Etapa 2: tracker de entrenamiento (rutinas, sesiones, historial, progresión, mapa corporal)
 - [x] Etapa 3: calorías con foto (estimación con Claude, edición, registro diario)
-- [ ] Etapa 4: análisis de físico
+- [x] Etapa 4: análisis de físico (fotos privadas, análisis con Claude, sugerencias que se agregan a la rutina, comparación)
 
 ## Desarrollo local (recomendado)
 
@@ -31,7 +31,7 @@ Para que el análisis de fotos funcione en local, copiá `supabase/functions/.en
 npx supabase link --project-ref <ref>
 npx supabase db push
 npx supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
-npx supabase functions deploy analyze-meal
+npx supabase functions deploy analyze-meal analyze-physique
 ```
 
 y en `.env` la URL y publishable key del proyecto. La API key de Claude vive solo como secret de
@@ -46,7 +46,7 @@ Supabase: la app nunca la ve.
 | `npm run test:db:local` | Los mismos tests contra el Supabase local (`supabase start`) |
 | `npm run typecheck` | TypeScript |
 | `npm run typecheck:functions` | Typecheck de las Edge Functions con Deno |
-| `npm run test:functions` | Edge Function `analyze-meal` contra el Supabase local + mock de Claude |
+| `npm run test:functions` | Edge Functions `analyze-meal` y `analyze-physique` contra el Supabase local + mock de Claude |
 | `npm run e2e` | Flujos completos en Expo web contra el Supabase local + mock de Claude (Playwright) |
 
 Los tests de funciones y E2E necesitan `npm run mock:anthropic` corriendo, para no gastar créditos.
@@ -77,4 +77,9 @@ principiante 6–10, intermedio 10–16, avanzado 12–20 series.
 - La Edge Function valida la sesión, que la ruta sea del usuario y un límite diario por usuario,
   descarga la foto con el token del usuario (RLS) y llama a Claude con salida estructurada (JSON Schema).
 - Cada llamada queda en `ai_requests` (modelo, tokens, ok) para límites y costos.
-- Modelo por defecto `claude-opus-5-5`; se cambia con `MEAL_MODEL` sin tocar código.
+- Modelo por defecto `claude-opus-5-5` (comida con effort `low`, físico con `high`); se cambia con
+  `MEAL_MODEL` / `PHYSIQUE_MODEL` sin tocar código. Límites diarios: `MEAL_DAILY_LIMIT` (40) y `PHYSIQUE_DAILY_LIMIT` (5).
+- El análisis de físico recibe las 3 fotos, el perfil, el volumen semanal de las últimas 4 semanas, las rutinas,
+  el catálogo de ejercicios (como enum en el JSON Schema, así solo puede sugerir ejercicios que existen)
+  y el análisis anterior para comentar el progreso. Solo para mayores de 18.
+- Borrar una sesión de físico (o "Borrar todas mis fotos") elimina primero los archivos de Storage y después los datos.
