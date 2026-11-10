@@ -2,7 +2,12 @@ import './storage';
 import { AppState, Platform } from 'react-native';
 import { createClient } from '@supabase/supabase-js';
 
-const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+// A relative URL ("/sb") means "same origin as the web app" (used behind a dev proxy).
+const rawUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const url =
+  rawUrl?.startsWith('/') && Platform.OS === 'web' && typeof window !== 'undefined'
+    ? `${window.location.origin}${rawUrl}`
+    : rawUrl;
 const key = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 export const isSupabaseConfigured = Boolean(url && key);
