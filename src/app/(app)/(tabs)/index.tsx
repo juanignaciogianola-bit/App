@@ -1,5 +1,9 @@
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
+import { router } from 'expo-router';
 import { useAuth } from '@/lib/auth';
+import { useWeekWorkoutCount, useWeeklyVolume } from '@/lib/api';
+import { volumeStatus } from '@/lib/training';
+import { BodyMap } from '@/components/BodyMap';
 import { useCurrentTargets } from '@/lib/useTargets';
 import { Button, Card, ProgressBar, Screen, Text } from '@/components/ui';
 import { colors, space } from '@/theme';
@@ -9,6 +13,11 @@ const GOAL_LABEL = { bulk: 'Volumen', cut: 'Definición', maintain: 'Mantener' }
 export default function Dashboard() {
   const { profile, signOut } = useAuth();
   const { targets } = useCurrentTargets();
+  const experience = profile?.experience ?? 'beginner';
+  const volume = useWeeklyVolume();
+  const weekCount = useWeekWorkoutCount();
+  const weekSets = Object.values(volume.data ?? {}).reduce((a, b) => a + (b ?? 0), 0);
+  const optimal = Object.values(volume.data ?? {}).filter((v) => volumeStatus(v ?? 0, experience) === 'optimal').length;
   // Consumed calories arrive in stage 3 (meal log); zero until then.
   const consumed = { kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
 
@@ -41,10 +50,24 @@ export default function Dashboard() {
           </View>
         </Card>
 
-        <Card style={{ gap: space.sm }}>
-          <Text variant="caption" muted>Entrenamiento de la semana</Text>
-          <Text muted>Disponible en la etapa 2.</Text>
-        </Card>
+        <Pressable testID="week-card" onPress={() => router.push('/train')}>
+          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.lg }}>
+            <View style={{ flex: 1, gap: space.sm }}>
+              <Text variant="caption" muted>Esta semana</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: space.xs }}>
+                <Text testID="week-count" style={{ fontSize: 36, fontWeight: '800', color: colors.text }}>{weekCount.data ?? 0}</Text>
+                <Text muted>{weekCount.data === 1 ? 'sesión' : 'sesiones'}</Text>
+              </View>
+              <Text variant="small" muted>
+                {Math.round(weekSets)} series ponderadas · {optimal} músculo{optimal === 1 ? '' : 's'} en rango óptimo
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              <BodyMap side="front" volume={volume.data ?? {}} experience={experience} height={130} />
+              <BodyMap side="back" volume={volume.data ?? {}} experience={experience} height={130} />
+            </View>
+          </Card>
+        </Pressable>
 
         <Card style={{ gap: space.sm }}>
           <Text variant="caption" muted>Último análisis de físico</Text>

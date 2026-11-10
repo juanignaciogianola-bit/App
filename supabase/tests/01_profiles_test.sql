@@ -5,7 +5,8 @@ insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111', 'a@test.dev'),
   ('22222222-2222-2222-2222-222222222222', 'b@test.dev');
 
-select tests.assert((select count(*) from public.profiles) = 2, 'signup trigger creates a profile per user');
+select tests.assert((select count(*) from public.profiles where id in ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222')) = 2,
+  'signup trigger creates a profile per user');
 
 -- User A fills in onboarding.
 select tests.login('11111111-1111-1111-1111-111111111111');

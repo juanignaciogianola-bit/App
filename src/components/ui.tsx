@@ -203,3 +203,101 @@ const styles = StyleSheet.create({
   track: { height: 6, borderRadius: 3, backgroundColor: colors.surfaceHigh, overflow: 'hidden' },
   fill: { height: '100%', borderRadius: 3 },
 });
+
+export function Chip({
+  label,
+  selected,
+  onPress,
+  testID,
+}: {
+  label: string;
+  selected?: boolean;
+  onPress?: () => void;
+  testID?: string;
+}) {
+  return (
+    <Pressable
+      testID={testID}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: !!selected }}
+      style={{
+        paddingHorizontal: space.md,
+        height: 34,
+        justifyContent: 'center',
+        borderRadius: radius.pill,
+        backgroundColor: selected ? colors.accent : colors.surfaceHigh,
+      }}
+    >
+      <Text variant="small" style={{ color: selected ? colors.accentText : colors.text }}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+export function Stepper({
+  value,
+  onChange,
+  min,
+  max,
+  label,
+  testID,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  min: number;
+  max: number;
+  label?: string;
+  testID?: string;
+}) {
+  const btn = (text: string, next: number, disabled: boolean, id: string) => (
+    <Pressable
+      testID={testID ? `${testID}-${id}` : undefined}
+      disabled={disabled}
+      onPress={() => onChange(next)}
+      hitSlop={6}
+      style={{
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: colors.surfaceHigh,
+        opacity: disabled ? 0.35 : 1,
+      }}
+    >
+      <Text variant="h3">{text}</Text>
+    </Pressable>
+  );
+  return (
+    <View style={{ alignItems: 'center', gap: space.xs }}>
+      {label ? <Text variant="caption" muted>{label}</Text> : null}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+        {btn('−', value - 1, value <= min, 'dec')}
+        <Text testID={testID ? `${testID}-value` : undefined} variant="h3" style={{ minWidth: 24, textAlign: 'center' }}>
+          {value}
+        </Text>
+        {btn('+', value + 1, value >= max, 'inc')}
+      </View>
+    </View>
+  );
+}
+
+export function SectionHeader({ title, action }: { title: string; action?: ReactNode }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.sm }}>
+      <Text variant="h2">{title}</Text>
+      {action}
+    </View>
+  );
+}
+
+export function EmptyState({ title, body }: { title: string; body?: string }) {
+  return (
+    <Card style={{ alignItems: 'center', paddingVertical: space.xl, gap: space.xs }}>
+      <Text variant="h3">{title}</Text>
+      {body ? <Text muted style={{ textAlign: 'center' }}>{body}</Text> : null}
+    </Card>
+  );
+}

@@ -18,22 +18,3 @@ alter default privileges in schema public grant all on tables to anon, authentic
 alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
 alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
 
--- Test helpers -------------------------------------------------------------
-create schema tests;
-grant usage on schema tests to anon, authenticated, service_role;
-create function tests.login(uid uuid) returns void language plpgsql as $$
-begin
-  perform set_config('request.jwt.claim.sub', uid::text, false);
-  execute 'set role authenticated';
-end $$;
-create function tests.logout() returns void language plpgsql as $$
-begin
-  execute 'reset role';
-  perform set_config('request.jwt.claim.sub', '', false);
-end $$;
-create function tests.assert(cond boolean, msg text) returns void language plpgsql as $$
-begin
-  if cond is distinct from true then raise exception 'ASSERTION FAILED: %', msg; end if;
-  raise notice 'ok - %', msg;
-end $$;
-grant execute on all functions in schema tests to anon, authenticated, service_role;
