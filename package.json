@@ -10,12 +10,19 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:db": "bash supabase/tests/run.sh",
-    "e2e": "node e2e/stage1-onboarding.web.js && node e2e/stage2-tracker.web.js",
+    "e2e": "node e2e/stage1-onboarding.web.js && node e2e/stage2-tracker.web.js && node e2e/stage3-meals.web.js",
     "test:db:local": "SUPABASE_DB_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres bash supabase/tests/run.sh",
-    "supabase": "supabase"
+    "supabase": "supabase",
+    "typecheck:functions": "cd supabase/functions && npx -y deno@2 check --node-modules-dir=none */index.ts",
+    "test:functions": "node e2e/functions.analyze-meal.test.js",
+    "mock:anthropic": "node e2e/mocks/anthropic-mock.js"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/e2e/"
+    ]
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -23,6 +30,9 @@
     "@tanstack/react-query": "^5.107.1",
     "expo": "~58.0.23",
     "expo-constants": "~58.0.15",
+    "expo-crypto": "~58.0.7",
+    "expo-image-manipulator": "~58.0.16",
+    "expo-image-picker": "~58.0.10",
     "expo-linking": "~58.0.16",
     "expo-router": "~58.0.30",
     "expo-sqlite": "~58.0.15",

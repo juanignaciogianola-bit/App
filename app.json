@@ -17,8 +17,24 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.forma.fitness"
     },
-    "web": { "favicon": "./assets/favicon.png" },
-    "plugins": ["expo-router", "expo-status-bar", "expo-sqlite"],
-    "experiments": { "typedRoutes": true }
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Forma usa tus fotos para estimar las calor\u00edas de tus comidas y analizar tu progreso f\u00edsico.",
+          "cameraPermission": "Forma usa la c\u00e1mara para fotografiar tus comidas y tu f\u00edsico.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }

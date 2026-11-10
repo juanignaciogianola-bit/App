@@ -10,3 +10,4 @@ android/
 *.log
 .DS_Store
 e2e/screenshots/
+supabase/functions/.local/

@@ -20,6 +20,7 @@ export default function AppLayout() {
       <Stack.Screen name="exercise/new" options={{ title: 'Nuevo ejercicio', presentation: 'modal' }} />
       <Stack.Screen name="exercise-picker" options={{ title: 'Ejercicios', presentation: 'modal' }} />
       <Stack.Screen name="history" options={{ title: 'Historial' }} />
+      <Stack.Screen name="meal/edit" options={{ title: 'Comida' }} />
     </Stack>
   );
 }

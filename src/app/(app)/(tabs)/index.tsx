@@ -5,6 +5,7 @@ import { useWeekWorkoutCount, useWeeklyVolume } from '@/lib/api';
 import { volumeStatus } from '@/lib/training';
 import { BodyMap } from '@/components/BodyMap';
 import { useCurrentTargets } from '@/lib/useTargets';
+import { useDayTotals } from '@/lib/meals';
 import { Button, Card, ProgressBar, Screen, Text } from '@/components/ui';
 import { colors, space } from '@/theme';
 
@@ -18,8 +19,8 @@ export default function Dashboard() {
   const weekCount = useWeekWorkoutCount();
   const weekSets = Object.values(volume.data ?? {}).reduce((a, b) => a + (b ?? 0), 0);
   const optimal = Object.values(volume.data ?? {}).filter((v) => volumeStatus(v ?? 0, experience) === 'optimal').length;
-  // Consumed calories arrive in stage 3 (meal log); zero until then.
-  const consumed = { kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
+  const today = useDayTotals(new Date());
+  const consumed = today.data ?? { kcal: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
 
   return (
     <Screen edges={['top']}>
@@ -38,7 +39,7 @@ export default function Dashboard() {
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: space.sm }}>
             <Text testID="kcal-left" style={{ fontSize: 44, fontWeight: '800', letterSpacing: -1, color: colors.text }}>
-              {targets ? targets.kcal - consumed.kcal : '—'}
+              {targets ? Math.round(targets.kcal - consumed.kcal) : '—'}
             </Text>
             <Text muted>kcal restantes</Text>
           </View>
@@ -85,7 +86,7 @@ function MacroRow({ label, value, target, color }: { label: string; value: numbe
     <View style={{ flex: 1, gap: space.xs }}>
       <Text variant="small" muted>{label}</Text>
       <ProgressBar value={target ? value / target : 0} color={color} />
-      <Text variant="small">{value}/{target ?? '—'} g</Text>
+      <Text variant="small">{Math.round(value)}/{target ?? '—'} g</Text>
     </View>
   );
 }
