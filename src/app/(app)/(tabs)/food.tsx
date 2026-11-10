@@ -9,6 +9,9 @@ import { MEAL_TYPES, isSameDay } from '@/lib/mealMath';
 import { useMealDraft } from '@/lib/mealDraft';
 import { notify } from '@/lib/confirm';
 import { Ring } from '@/components/Ring';
+import { ColumnChart } from '@/components/charts/ColumnChart';
+import { isoDay, useNutritionDaily } from '@/lib/api';
+import { weekdayInitial } from '@/lib/chartScale';
 import { Button, Card, EmptyState, ProgressBar, Screen, Text } from '@/components/ui';
 import { colors, radius, space } from '@/theme';
 
@@ -27,6 +30,7 @@ export default function Food() {
   const totals = useDayTotals(day);
   const meals = useDayMeals(day);
   const setPicked = useMealDraft((s) => s.setPicked);
+  const week = useNutritionDaily(new Date());
   const isToday = isSameDay(day, new Date());
 
   const shift = (n: number) => setDay((d) => {
@@ -74,6 +78,25 @@ export default function Food() {
         <Text testID="day-consumed" variant="small" muted style={{ textAlign: 'center', marginTop: -space.sm }}>
           {Math.round(t.kcal)} de {targets?.kcal ?? '—'} kcal consumidas
         </Text>
+
+        {week.data ? (
+          <Card style={{ gap: space.sm }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <Text variant="caption" muted>Últimos 7 días</Text>
+              <Text variant="small" muted>
+                Promedio {Math.round(week.data.filter((d) => d.kcal > 0).reduce((a, d) => a + d.kcal, 0) / Math.max(1, week.data.filter((d) => d.kcal > 0).length))} kcal
+              </Text>
+            </View>
+            <ColumnChart
+              testID="week-kcal-chart"
+              data={week.data.map((d) => ({ key: d.day, label: weekdayInitial(d.day), value: d.kcal }))}
+              target={targets?.kcal}
+              targetLabel={targets ? `Objetivo ${targets.kcal}` : undefined}
+              selectedKey={isoDay(day)}
+              onSelect={(k) => setDay(new Date(`${k}T12:00:00`))}
+            />
+          </Card>
+        ) : null}
 
         <View style={{ flexDirection: 'row', gap: space.md }}>
           <Button testID="photo-camera" title="Sacar foto" onPress={() => pick('camera')} style={{ flex: 1 }} />

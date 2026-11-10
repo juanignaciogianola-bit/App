@@ -9,9 +9,13 @@ export const colors = {
   accent: '#C6F432', // lime
   accentText: '#0B0B0F',
   danger: '#FF5C5C',
-  protein: '#5CC8FF',
-  carbs: '#FFB547',
-  fat: '#FF7AB6',
+  // Macro series (validated for the dark surface: lightness band, chroma, CVD separation, contrast)
+  protein: '#3987E5',
+  carbs: '#C98500',
+  fat: '#D55181',
+  // Chart chrome: one step off the card surface, hairline, solid
+  grid: '#26262F',
+  axis: '#5C5C68',
 } as const;
 
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;

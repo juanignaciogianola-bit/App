@@ -93,8 +93,16 @@ async function photosOf(userId) {
   expectEqual(await page.getByTestId('kcal-left').innerText(), '2640', 'dashboard remaining kcal');
   await shot('s3-04-dashboard');
 
-  // Yesterday is empty and tomorrow is not reachable
+  // 7-day chart: today's column carries the value; tapping yesterday's column opens that day
   await page.getByRole('tab', { name: /Comida/ }).click();
+  await page.getByTestId('week-kcal-chart').waitFor();
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  const key = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
+  await page.getByTestId(`column-${key}`).click();
+  expectEqual(await page.getByTestId('day-label').innerText(), 'Ayer', 'tapping a column opens that day');
+  await page.getByTestId('next-day').click();
+
+  // Yesterday is empty and tomorrow is not reachable
   await page.getByTestId('prev-day').click();
   expectEqual(await page.getByTestId('day-label').innerText(), 'Ayer', 'day navigation');
   await page.getByText('No registraste comidas este día.').waitFor();

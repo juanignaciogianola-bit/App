@@ -8,6 +8,10 @@ import { VOLUME_TARGETS, formatDuration, volumeStatus } from '@/lib/training';
 import { useWorkoutStore } from '@/lib/workoutStore';
 import type { MuscleId, Routine } from '@/lib/types';
 import { BodyMap, BodyMapLegend } from '@/components/BodyMap';
+import { ColumnChart } from '@/components/charts/ColumnChart';
+import { MuscleBars } from '@/components/charts/MuscleBars';
+import { useTrainingWeekly } from '@/lib/api';
+import { shortDate } from '@/lib/chartScale';
 import { Button, Card, Chip, EmptyState, Screen, SectionHeader, Text } from '@/components/ui';
 import { colors, space } from '@/theme';
 
@@ -19,6 +23,7 @@ export default function Train() {
   const [selected, setSelected] = useState<MuscleId | null>(null);
   const volume = useWeeklyVolume();
   const muscles = useMuscles();
+  const weekly = useTrainingWeekly(8);
   const routines = useRoutines();
   const workouts = useWorkouts();
   const { create } = useRoutineMutations();
@@ -91,6 +96,38 @@ export default function Train() {
               : 'Tocá un músculo para ver sus series'}
           </Text>
         </Card>
+
+        {muscles.data ? (
+          <Card style={{ gap: space.md }}>
+            <Text variant="caption" muted>Series por músculo esta semana</Text>
+            <MuscleBars
+              rows={muscles.data
+                .filter((m) => (volume.data?.[m.id] ?? 0) > 0)
+                .map((m) => ({ id: m.id, label: m.name, value: volume.data?.[m.id] ?? 0 }))
+                .sort((a, b) => b.value - a.value)}
+              targetMin={target.min}
+              targetMax={target.max}
+              untrained={muscles.data.filter((m) => !(volume.data?.[m.id] ?? 0)).map((m) => m.name)}
+            />
+          </Card>
+        ) : null}
+
+        {weekly.data ? (
+          <Card style={{ gap: space.sm }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <Text variant="caption" muted>Series por semana</Text>
+              <Text variant="small" muted>
+                {weekly.data[weekly.data.length - 1].sessions} {weekly.data[weekly.data.length - 1].sessions === 1 ? 'sesión' : 'sesiones'} esta semana
+              </Text>
+            </View>
+            <ColumnChart
+              testID="weekly-sets-chart"
+              data={weekly.data.map((w) => ({ key: w.week_start, label: shortDate(w.week_start), value: w.sets }))}
+              selectedKey={weekly.data[weekly.data.length - 1].week_start}
+              labelEvery={2}
+            />
+          </Card>
+        ) : null}
 
         <Button testID="start-empty" title={active ? 'Continuar entrenamiento' : 'Empezar entrenamiento libre'} onPress={() => startWorkout()} />
 

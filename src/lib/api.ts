@@ -268,3 +268,40 @@ export function useWeekWorkoutCount(date: Date = new Date()) {
     },
   });
 }
+
+// Chart aggregates (grouped by the device's local calendar) ----------------------------
+export const deviceTimeZone = () => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  } catch {
+    return 'UTC';
+  }
+};
+
+const isoDay = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+export function useNutritionDaily(end: Date, days = 7) {
+  const start = new Date(end.getFullYear(), end.getMonth(), end.getDate() - (days - 1));
+  const from = isoDay(start);
+  const to = isoDay(end);
+  return useQuery({
+    queryKey: ['meals', 'daily', from, to],
+    queryFn: async () =>
+      unwrap<{ day: string; kcal: number; protein_g: number; carbs_g: number; fat_g: number }[]>(
+        await supabase.rpc('nutrition_daily', { p_from: from, p_to: to, p_tz: deviceTimeZone() }),
+      ).map((r) => ({ ...r, kcal: Number(r.kcal), protein_g: Number(r.protein_g), carbs_g: Number(r.carbs_g), fat_g: Number(r.fat_g) })),
+  });
+}
+
+export function useTrainingWeekly(weeks = 8) {
+  return useQuery({
+    queryKey: ['workouts', 'weekly', weeks],
+    queryFn: async () =>
+      unwrap<{ week_start: string; sessions: number; sets: number; volume_kg: number }[]>(
+        await supabase.rpc('training_weekly', { p_weeks: weeks, p_tz: deviceTimeZone() }),
+      ).map((r) => ({ ...r, volume_kg: Number(r.volume_kg) })),
+  });
+}
+
+export { isoDay };
